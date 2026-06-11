@@ -13,15 +13,15 @@ https://drive.google.com/file/d/1zjWekewPG1htUuJxJoMiZ6uipwGUndzr/view?usp=shari
 
 **Sample Images**
 
-![Sampe images ](sample_images.png)
+![Sampe images ](OUTPUT/predictions.png)
 
 **Training Curve**
 
-![Accuracy Curve](accuracy_curve.png)
+![Accuracy Curve](OUTPUT/accuracy_curve.png)
 
 **Classification Results**
 
-![Predictions](predictions.png)
+![Predictions](OUTPUT/predictions.png)
 
 ---
 

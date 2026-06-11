@@ -234,7 +234,7 @@ def run_inference(model, test_loader, device):
 
 def main():
     print("=" * 50)
-    print("  MNIST Digit Classifier — CNN with PyTorch")
+    print("  MNIST Digit Classifier : CNN with PyTorch")
     print("=" * 50)
     print()
 
