@@ -1,54 +1,70 @@
-# Small Language Model (SLM)
+# TinySLM: Pre-training a Small Language Model from Scratch
 
-Build a **Small Language Model (SLM)** from scratch and gain a practical understanding of how modern language models function internally. This project is designed to help participants move beyond simply using pretrained models and instead understand the fundamental components that power text generation systems.
+TinySLM is a custom, ~53-million parameter autoregressive GPT-style language model built entirely from scratch using PyTorch. The model is pre-trained on a subset of the **TinyStories** dataset, designed to learn coherent English grammar, basic reasoning, and narrative structure through next-token prediction.
 
-Participants will explore the complete process of building a lightweight transformer-based language model — beginning with text preprocessing and tokenization, progressing through embeddings and attention mechanisms, and eventually training a model capable of generating coherent text.
+---
 
-The goal of this project is not to create a production-scale LLM, but to develop an intuitive and implementation-level understanding of:
-- How language models learn patterns from text
-- Tokenization and vocabulary construction
-- Embeddings and positional encodings
-- Self-attention and transformer architecture
-- Training loops, optimization, and loss computation
-- Text generation and inference strategies
+##  Model Architecture & Specifications
 
-Through experimentation and guided implementation, participants will understand how small architectural decisions influence model behavior and performance. By the end of the project, participants should have a working small language model along with a solid conceptual foundation for exploring larger transformer systems and advanced NLP research.
+The architecture closely follows the standard decoder-only Transformer design with casual multi-head attention and residual connections. 
 
-## What You’ll Learn
-- Text preprocessing and tokenization
-- Embeddings and positional encoding
-- Attention mechanisms and transformers
-- Training language models on text data
-- Loss functions and optimization
-- Text generation and inference
+* **Total Parameters:** 52,933,201
+* **Vocabulary Size:** 50,257 (GPT-2 tokenization via `tiktoken`)
+* **Context Window (`block_size`):** 256 tokens
+* **Embedding Dimension (`n_embd`):** 384
+* **Attention Heads (`n_head`):** 8 (48 dimensions per head)
+* **Transformer Layers (`n_layer`):** 8
+* **Optimizer:** AdamW ($lr = 1\times 10^{-3}$, decayed down to $1\times 10^{-4}$)
+* **Learning Rate Scheduler:** Cosine Annealing
 
-## Project Flow
+---
 
-### Task 1 — Understand Language Models
-Learn how language models work and explore the basics of autoregressive text generation.
+## Setup
 
-### Task 2 — Prepare the Dataset
-Clean, preprocess, and tokenize text data for training.
+```bash
+pip install -r requirements.txt
+```
 
-### Task 3 — Build the Model
-Implement the architecture components required for a small transformer-based language model.
+---
 
-### Task 4 — Train the Model
-Write the training pipeline, define the loss function, and optimize model parameters.
+###  Project Steps Summary
 
-### Task 5 — Evaluate & Generate Text
-Test the model and generate text samples to observe learned behavior.
+| Step | Purpose |
+| :--- | :--- |
+| **Step 1: Environment & Dataset** | Configures stable download timeout limits and streams the raw *TinyStories* dataset to local storage. |
+| **Step 2: Training Tokenization** | Converts raw training story texts into sequences of standard GPT-2 numerical token IDs using `tiktoken`. |
+| **Step 2.5: Validation Tokenization** | Processes a matching 1% validation slice into token IDs to measure true model generalization. |
+| **Step 3: Memory-Mapped Data Loader** | Streams training and validation batches directly from disk via memory mapping to minimize RAM usage. |
+| **Step 4: Model Configuration** | Defines the structural dimensions, network bounds, and hyperparameters for the neural layers. |
+| **Step 5: Training & Checkpointing** | Optimizes model weights using AdamW and Cosine Annealing, saving the best configuration on validation drops. |
+| **Step 6: Multi-Temperature Inference** | Restores weights from the best saved checkpoint to generate new text at varying levels of randomness. |
 
-### Task 6 — Improve & Experiment
-Experiment with architecture changes, hyperparameters, and dataset improvements.
+---
 
-## Tech Stack
-- Python
-- PyTorch
-- Tokenizers / Text Processing Libraries
+##  How it Runs
 
-## Goal
+* **Automated Training & Checkpointing:** The script executes data processing, memory-mapping, and model training sequentially. The training loop automatically monitors validation loss and serializes the best performing model states directly to `best_tinyslm_model.pt`.
+* **Inference Pipeline:** The final evaluation cell safely loads `best_tinyslm_model.pt` via `torch.serialization.add_safe_globals([GPTConfig])` to generate text loops across multiple temperature variables.
 
-By the end of this project, participants should have both a working **Small Language Model (SLM)** and a strong conceptual understanding of the building blocks behind modern language models. The focus is not on training a massive production-scale model, but on understanding the complete pipeline involved in language modeling — including preprocessing text, building transformer components, training neural networks, and generating text outputs.
+---
 
-Participants should leave the project with enough practical and theoretical understanding to confidently explore larger transformer architectures, advanced NLP concepts, and future work involving language models, fine-tuning, or generative AI systems.
+## Performance & Results
+
+* Final Training Loss / Perplexity  : [2.3681 / 10.68]
+
+* Final Validation Loss / Perplexity: [ 2.2385 / 9.38]
+
+---
+
+## Sample Generated Story (Prompt: "Once upon a time there was a girl" , Temperature = 0.3)
+
+```
+once upon a time there was a girl named Lily. She loved to play with her. She saw her parents and daddy all about it.
+
+After Lily was being so excited, she decided to stay and they found a big stick. She was very competitive. She was happy. She was so happy to make it for her mom if she was so happy to her mom. She was so she had a new friends with her mommy.
+
+Lily was too. She was very proud of the table.<|endoftext|>Once upon a
+
+```
+
+---
